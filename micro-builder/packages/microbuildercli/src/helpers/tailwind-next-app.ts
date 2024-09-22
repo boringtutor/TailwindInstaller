@@ -22,19 +22,34 @@ export async function installTailwindForNextApp({
     successReturn("Installing TailwindCss...")
   )?.start();
 
-  const { cwd, isTsx } = config;
+  const { cwd, TypescriptConfig, tsconfigPath } = config;
   try {
-    // await runConfigFilesInstaller(cwd, config.isTsx);
-    // await writePostcssConfigToFile(cwd);
-    // await installTailwindDependencies(cwd);
-    // if (config.globalCssPath) {
-    //   await updateGlobalCss(cwd, config.globalCssPath);
-    // } else {
-    //   const cssPath = path.resolve(cwd, "src/app/globals.css");
-    //   config.globalCssPath = cssPath;
-    //   await createGlobalCss(cwd, cssPath);
-    // }
-    await updateTsConfig(cwd, isTsx);
+    await runConfigFilesInstaller(cwd, config.isTsx);
+
+    const postcssPromise = writePostcssConfigToFile(cwd);
+    const tailwindPromise = installTailwindDependencies(cwd);
+
+    let cssPromise;
+    if (config.globalCssPath) {
+      cssPromise = updateGlobalCss(cwd, config.globalCssPath);
+    } else {
+      const cssPath = path.resolve(cwd, "src/app/globals.css");
+      config.globalCssPath = cssPath;
+      cssPromise = createGlobalCss(cwd, cssPath);
+    }
+
+    const tsconfigPromise =
+      tsconfigPath && TypescriptConfig
+        ? updateTsConfig(tsconfigPath)
+        : Promise.resolve();
+
+    await Promise.all([
+      postcssPromise,
+      tailwindPromise,
+      cssPromise,
+      tsconfigPromise,
+    ]);
+
     dependenciesSpinner?.succeed();
   } catch (e) {
     dependenciesSpinner?.fail();

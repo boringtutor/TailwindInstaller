@@ -16,7 +16,7 @@ export async function main() {
   console.log("");
 
   success(" Tailwind installer ...");
-  const testDir = path.join(process.cwd(), "../../apps/web");
+  const testDir = path.join(process.cwd(), "../../apps/docs");
   // console.log(testDir);
   //   const cwd = path.join(process.cwd(), testDir);
   const projectInfo = await getProjectInfo(testDir);

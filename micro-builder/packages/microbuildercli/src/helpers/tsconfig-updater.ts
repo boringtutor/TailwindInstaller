@@ -1,18 +1,12 @@
-import { loadConfig } from "tsconfig-paths";
-import { warn } from "./logger";
 import fs from "fs-extra";
+import { warn } from "./logger";
 
-export async function updateTsConfig(cwd: string, isTsx: boolean) {
+export async function updateTsConfig(tsConfigPath: string) {
   //read tsconfig.json
-  const tsConfig = await loadConfig(cwd);
-  if (tsConfig.resultType === "failed") {
-    throw new Error(
-      `Failed to load ${isTsx ? "tsconfig" : "jsconfig"}.json. ${
-        tsConfig.message ?? ""
-      }`.trim()
-    );
+  const data = JSON.parse(await fs.readFile(tsConfigPath, "utf8"));
+  warn(JSON.stringify(data, null, 2));
+  if (!data.include.includes("postcss.config.cjs")) {
+    data.include.push("postcss.config.cjs");
   }
-
-  const tsconfig = await fs.readJSON(tsConfig.configFileAbsolutePath);
-  warn(`tsconfig: ${JSON.stringify(tsconfig, null, 2)}`);
+  await fs.writeFile(tsConfigPath, JSON.stringify(data, null, 2));
 }
