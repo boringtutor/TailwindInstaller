@@ -38,10 +38,20 @@ export async function getProjectInfo(cwd: string): Promise<ProjectInfo | null> {
     isTsx,
     aliasPrefix,
     globalCssPath,
+    TypescriptConfig: undefined,
+    tsconfigPath: "",
   };
   if (!configFiles.length) {
     return type;
   }
+
+  // get Typescript config.
+  if (isTsx) {
+    const { tsConfigData, tsConfigPath } = await getTsConfig(cwd, isTsx);
+    type.TypescriptConfig = tsConfigData;
+    type.tsconfigPath = tsConfigPath;
+  }
+
   // Next.js.
   if (configFiles.find((file) => file.startsWith("next.config."))?.length) {
     type.framework = isUsingAppDir
@@ -73,19 +83,24 @@ export async function isTypeScriptProject(cwd: string) {
   return files.length > 0;
 }
 
-export async function getTsConfig() {
-  try {
-    const tsconfigPath = path.join("tsconfig.json");
-    const tsconfig = await fs.readJSON(tsconfigPath);
-
-    if (!tsconfig) {
-      throw new Error("tsconfig.json is missing");
-    }
-
-    return tsconfig;
-  } catch (error) {
-    return null;
+export async function getTsConfig(
+  cwd: string,
+  isTsx: boolean
+): Promise<{ tsConfigData: any; tsConfigPath: string }> {
+  const tsConfig = await loadConfig(cwd);
+  if (tsConfig.resultType === "failed") {
+    throw new Error(
+      `Failed to load ${isTsx ? "tsconfig" : "jsconfig"}.json. ${
+        tsConfig.message ?? ""
+      }`.trim()
+    );
   }
+
+  const tsConfigFileData = await fs.readJSON(tsConfig.configFileAbsolutePath);
+  return {
+    tsConfigData: tsConfigFileData,
+    tsConfigPath: tsConfig.configFileAbsolutePath,
+  };
 }
 
 export async function getGlobalCssPath(cwd: string) {
