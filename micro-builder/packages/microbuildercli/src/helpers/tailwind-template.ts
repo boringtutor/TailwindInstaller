@@ -78,7 +78,7 @@ const config = {
 export default config`;
 
 export const GLOBAL_CSS_CONTENT = `
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 `;
