@@ -9,20 +9,18 @@ import {
   getPackageRunner,
 } from './helpers/get-package-manager';
 import { getProjectInfo } from './helpers/get-project-info';
-import path from 'path';
 import { runTailwindInstaller } from './helpers/tailwind-installer';
+import { interactiveMode } from './helpers/intractive-mode';
 
-export async function main() {
+export async function main(projectPath: string) {
   success(' Tailwind installer ...');
-  const testDir = path.join(process.cwd(), '../apps/docs');
+  const testDir = projectPath;
 
-  const cwd = path.join(process.cwd(), testDir);
   const projectInfo = await getProjectInfo(testDir);
   if (!projectInfo) {
     error('No project info found');
     return;
   }
-  // warn(JSON.stringify(projectInfo, null, 2));
 
   const packageRunner = await getPackageRunner(testDir);
   if (!packageRunner) {
@@ -59,7 +57,9 @@ cli(
     },
   },
   async () => {
-    await main();
+    const result = await interactiveMode();
+    outro(`will install the tailwindcss in ${result}`);
+    await main(result);
   },
 );
 
