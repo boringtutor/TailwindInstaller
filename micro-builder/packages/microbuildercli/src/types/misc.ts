@@ -1,3 +1,4 @@
+import { PROJECT_TYPES } from "../helpers/consts";
 import { Framework } from "../helpers/templates";
 
 export type PackageManagerType = "yarn" | "pnpm" | "bun" | "npm";
@@ -16,4 +17,8 @@ export type ProjectInfo = {
   isTsx: boolean;
   globalCssPath: string | null;
   aliasPrefix: string | null;
+  TypescriptConfig?: unknown;
+  tsconfigPath?: string;
 };
+
+export type ProjectType = (typeof PROJECT_TYPES)[number];
