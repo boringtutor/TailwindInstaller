@@ -30,10 +30,10 @@ const EXCLAMATION_MARK = 0x21;
 export function parse(input: string) {
   input = input.replace(/\r\n/g, "\n");
 
-  let ast: AstNode[] = [];
-  let licenseComments: Comment[] = [];
+  const ast: AstNode[] = [];
+  const licenseComments: Comment[] = [];
 
-  let stack: (Rule | null)[] = [];
+  const stack: (Rule | null)[] = [];
 
   let parent = null as Rule | null;
   let node = null as AstNode | null;
@@ -44,7 +44,7 @@ export function parse(input: string) {
   let peekChar;
 
   for (let i = 0; i < input.length; i++) {
-    let currentChar = input.charCodeAt(i);
+    const currentChar = input.charCodeAt(i);
 
     // Current character is a `\` therefore the next character is escaped,
     // consume it together with the next character and continue.
@@ -78,7 +78,7 @@ export function parse(input: string) {
     // }
     // ```
     else if (currentChar === SLASH && input.charCodeAt(i + 1) === ASTERISK) {
-      let start = i;
+      const start = i;
 
       for (let j = i + 2; j < input.length; j++) {
         peekChar = input.charCodeAt(j);
@@ -95,7 +95,7 @@ export function parse(input: string) {
         }
       }
 
-      let commentString = input.slice(start, i + 1);
+      const commentString = input.slice(start, i + 1);
 
       // Collect all license comments so that we can hoist them to the top of
       // the AST.
@@ -106,7 +106,7 @@ export function parse(input: string) {
 
     // Start of a string.
     else if (currentChar === SINGLE_QUOTE || currentChar === DOUBLE_QUOTE) {
-      let start = i;
+      const start = i;
 
       // We need to ensure that the closing quote is the same as the opening
       // quote.
@@ -211,7 +211,7 @@ export function parse(input: string) {
     ) {
       let closingBracketStack = "";
 
-      let start = i;
+      const start = i;
       let colonIdx = -1;
 
       for (let j = i + 2; j < input.length; j++) {
@@ -298,7 +298,7 @@ export function parse(input: string) {
         }
       }
 
-      let declaration = parseDeclaration(buffer, colonIdx);
+      const declaration = parseDeclaration(buffer, colonIdx);
       if (parent) {
         parent.nodes.push(declaration);
       } else {
@@ -346,7 +346,7 @@ export function parse(input: string) {
     // ```
     //
     else if (currentChar === SEMICOLON) {
-      let declaration = parseDeclaration(buffer);
+      const declaration = parseDeclaration(buffer);
       if (parent) {
         parent.nodes.push(declaration);
       } else {
@@ -435,11 +435,11 @@ export function parse(input: string) {
           // Split `buffer` into a `property` and a `value`. At this point the
           // comments are already removed which means that we don't have to worry
           // about `:` inside of comments.
-          let colonIdx = buffer.indexOf(":");
+          const colonIdx = buffer.indexOf(":");
 
           // Attach the declaration to the parent.
           if (parent) {
-            let importantIdx = buffer.indexOf("!important", colonIdx + 1);
+            const importantIdx = buffer.indexOf("!important", colonIdx + 1);
             parent.nodes.push({
               kind: "declaration",
               property: buffer.slice(0, colonIdx).trim(),
@@ -457,7 +457,7 @@ export function parse(input: string) {
 
       // We are done with the current node, which means we can go up one level
       // in the stack.
-      let grandParent = stack.pop() ?? null;
+      const grandParent = stack.pop() ?? null;
 
       // We are the root node which means we are done and continue with the next
       // node.
@@ -513,7 +513,7 @@ function parseDeclaration(
   buffer: string,
   colonIdx: number = buffer.indexOf(":")
 ): Declaration {
-  let importantIdx = buffer.indexOf("!important", colonIdx + 1);
+  const importantIdx = buffer.indexOf("!important", colonIdx + 1);
   return {
     kind: "declaration",
     property: buffer.slice(0, colonIdx).trim(),
