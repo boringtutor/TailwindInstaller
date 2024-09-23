@@ -1,45 +1,45 @@
-import { ProjectInfo } from "../types/misc";
+import { ProjectInfo } from '../types/misc';
 
-import { FRAMEWORKS } from "./templates";
-import fg from "fast-glob";
-import fs from "fs-extra";
-import path from "path";
-import { loadConfig } from "tsconfig-paths";
-import { findGlobalCssPath } from "./misc";
+import { FRAMEWORKS } from './templates';
+import fg from 'fast-glob';
+import fs from 'fs-extra';
+import path from 'path';
+import { loadConfig } from 'tsconfig-paths';
+import { findGlobalCssPath } from './misc';
 
 export const PROJECT_SHARED_IGNORE = [
-  "**/node_modules/**",
-  ".next",
-  "public",
-  "dist",
-  "build",
+  '**/node_modules/**',
+  '.next',
+  'public',
+  'dist',
+  'build',
 ];
 
 export async function getProjectInfo(cwd: string): Promise<ProjectInfo | null> {
   const [configFiles, isSrcDir, isTsx, aliasPrefix, globalCssPath] =
     await Promise.all([
-      fg.glob("**/{next,vite,astro}.config.*|gatsby-config.*|composer.json", {
+      fg.glob('**/{next,vite,astro}.config.*|gatsby-config.*|composer.json', {
         cwd,
         deep: 3,
         ignore: PROJECT_SHARED_IGNORE,
       }),
-      fs.pathExists(path.resolve(cwd, "src")),
+      fs.pathExists(path.resolve(cwd, 'src')),
       isTypeScriptProject(cwd),
       getTsConfigAliasPrefix(cwd),
       getGlobalCssPath(cwd),
     ]);
   const isUsingAppDir = await fs.pathExists(
-    path.resolve(cwd, `${isSrcDir ? "src/" : ""}app`)
+    path.resolve(cwd, `${isSrcDir ? 'src/' : ''}app`)
   );
   const type: ProjectInfo = {
-    framework: FRAMEWORKS["manual"],
+    framework: FRAMEWORKS['manual'],
     isSrcDir,
     isRSC: false,
     isTsx,
     aliasPrefix,
     globalCssPath,
     TypescriptConfig: undefined,
-    tsconfigPath: "",
+    tsconfigPath: '',
   };
   if (!configFiles.length) {
     return type;
@@ -53,20 +53,20 @@ export async function getProjectInfo(cwd: string): Promise<ProjectInfo | null> {
   }
 
   // Next.js.
-  if (configFiles.find((file) => file.startsWith("next.config."))?.length) {
+  if (configFiles.find((file) => file.startsWith('next.config.'))?.length) {
     type.framework = isUsingAppDir
-      ? FRAMEWORKS["next-app"]
-      : FRAMEWORKS["next-pages"];
+      ? FRAMEWORKS['next-app']
+      : FRAMEWORKS['next-pages'];
     type.isRSC = isUsingAppDir;
     return type;
   }
   // Vite and Remix.
   // They both have a vite.config.* file.
-  if (configFiles.find((file) => file.startsWith("vite.config."))?.length) {
+  if (configFiles.find((file) => file.startsWith('vite.config.'))?.length) {
     // We'll assume that if the project has an app dir, it's a Remix project.
     // Otherwise, it's a Vite project.
     // TODO: Maybe check for `@remix-run/react` in package.json?
-    type.framework = isUsingAppDir ? FRAMEWORKS["remix"] : FRAMEWORKS["vite"];
+    type.framework = isUsingAppDir ? FRAMEWORKS['remix'] : FRAMEWORKS['vite'];
     return type;
   }
 
@@ -74,7 +74,7 @@ export async function getProjectInfo(cwd: string): Promise<ProjectInfo | null> {
 }
 
 export async function isTypeScriptProject(cwd: string) {
-  const files = await fg.glob("tsconfig.*", {
+  const files = await fg.glob('tsconfig.*', {
     cwd,
     deep: 1,
     ignore: PROJECT_SHARED_IGNORE,
@@ -88,10 +88,10 @@ export async function getTsConfig(
   isTsx: boolean
 ): Promise<{ tsConfigData: any; tsConfigPath: string }> {
   const tsConfig = await loadConfig(cwd);
-  if (tsConfig.resultType === "failed") {
+  if (tsConfig.resultType === 'failed') {
     throw new Error(
-      `Failed to load ${isTsx ? "tsconfig" : "jsconfig"}.json. ${
-        tsConfig.message ?? ""
+      `Failed to load ${isTsx ? 'tsconfig' : 'jsconfig'}.json. ${
+        tsConfig.message ?? ''
       }`.trim()
     );
   }
@@ -116,17 +116,17 @@ export async function getGlobalCssPath(cwd: string) {
 export async function getTsConfigAliasPrefix(cwd: string) {
   const tsConfig = await loadConfig(cwd);
 
-  if (tsConfig?.resultType === "failed" || !tsConfig?.paths) {
+  if (tsConfig?.resultType === 'failed' || !tsConfig?.paths) {
     return null;
   }
 
   // This assume that the first alias is the prefix.
   for (const [alias, paths] of Object.entries(tsConfig.paths)) {
     if (
-      paths.includes("./*") ||
-      paths.includes("./src/*") ||
-      paths.includes("./app/*") ||
-      paths.includes("./resources/js/*") // Laravel.
+      paths.includes('./*') ||
+      paths.includes('./src/*') ||
+      paths.includes('./app/*') ||
+      paths.includes('./resources/js/*') // Laravel.
     ) {
       return alias.at(0) ?? null;
     }

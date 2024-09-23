@@ -1,10 +1,10 @@
-import { glob } from "fast-glob";
+import fg from 'fast-glob';
 import {
   FrameworkConfig,
   PackageManagerType,
   PackageRunnerType,
   ProjectInfo,
-} from "../types/misc";
+} from '../types/misc';
 
 export function getFrameworkInfo({
   projectInfo,
@@ -26,7 +26,7 @@ export function getFrameworkInfo({
 }
 
 export async function findGlobalCssPath(cwd: string) {
-  const cssPath = glob.sync("**/{globals,global}.css", {
+  const cssPath = fg.glob.sync('**/{globals,global}.css', {
     cwd,
     absolute: true,
   });
