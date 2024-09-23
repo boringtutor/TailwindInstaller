@@ -11,41 +11,42 @@ import {
 import { getProjectInfo } from "./helpers/get-project-info";
 import path from "path";
 import { runTailwindInstaller } from "./helpers/tailwind-installer";
-
+import { transformCss } from "./transform/transform-css";
 export async function main() {
   console.log("");
+  transformCss();
 
-  success(" Tailwind installer ...");
-  const testDir = path.join(process.cwd(), "../../apps/docs");
-  // console.log(testDir);
-  //   const cwd = path.join(process.cwd(), testDir);
-  const projectInfo = await getProjectInfo(testDir);
-  if (!projectInfo) {
-    error("No project info found");
-    return;
-  }
-  warn(JSON.stringify(projectInfo, null, 2));
+  // success(" Tailwind installer ...");
+  // const testDir = path.join(process.cwd(), "../../apps/docs");
+  // // console.log(testDir);
+  // //   const cwd = path.join(process.cwd(), testDir);
+  // const projectInfo = await getProjectInfo(testDir);
+  // if (!projectInfo) {
+  //   error("No project info found");
+  //   return;
+  // }
+  // warn(JSON.stringify(projectInfo, null, 2));
 
-  const packageRunner = await getPackageRunner(testDir);
-  if (!packageRunner) {
-    error("No package runner found");
-    return;
-  }
-  const packageManager = await getPackageManager(testDir);
-  if (!packageManager) {
-    error("No package manager found");
-    return;
-  }
-  const frameworkInfo = getFrameworkInfo({
-    projectInfo,
-    packageManager,
-    packageRunner,
-    cwd: testDir,
-  });
-  success("Got the framework info");
-  warn(JSON.stringify(frameworkInfo, null, 2));
-  console.log(" ");
-  await runTailwindInstaller({ config: frameworkInfo });
+  // const packageRunner = await getPackageRunner(testDir);
+  // if (!packageRunner) {
+  //   error("No package runner found");
+  //   return;
+  // }
+  // const packageManager = await getPackageManager(testDir);
+  // if (!packageManager) {
+  //   error("No package manager found");
+  //   return;
+  // }
+  // const frameworkInfo = getFrameworkInfo({
+  //   projectInfo,
+  //   packageManager,
+  //   packageRunner,
+  //   cwd: testDir,
+  // });
+  // success("Got the framework info");
+  // warn(JSON.stringify(frameworkInfo, null, 2));
+  // console.log(" ");
+  // await runTailwindInstaller({ config: frameworkInfo });
 }
 
 cli(
